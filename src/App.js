@@ -19,8 +19,17 @@ const settings = {
 //   https://docs.alchemy.com/reference/alchemy-sdk-api-surface-overview#api-surface
 const alchemy = new Alchemy(settings);
 
+function BlockCard({block}) {
+  return (
+    <div className='block'>
+      <h3>Block Number:</h3>
+    </div>
+  )
+}
+
 function App() {
   const [blockNumber, setBlockNumber] = useState();
+  const [blocks, setBlocks] = useState([]);
 
   useEffect(() => {
     async function getBlockNumber() {
@@ -30,7 +39,28 @@ function App() {
     getBlockNumber();
   });
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+  useEffect(() => {
+    if (blockNumber) {
+      const blocksList = [];
+      for (let i = blockNumber; i > blockNumber-10; i--) {
+        alchemy.core.getBlock(i).then(block => {
+          blocksList.push(<BlockCard key={block.number} block={block} />);
+          // console.log(block);
+        });
+      }
+       
+      setBlocks(blocksList);
+    }
+  }, [blockNumber])
+  console.log(blocks)
+
+  return (
+    <div className="App">
+      {
+        Boolean(blocks.length) && blocks
+      }
+    </div>
+  )
 }
 
 export default App;
